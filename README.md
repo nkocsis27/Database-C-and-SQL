@@ -5,7 +5,7 @@ In addition, implements relational algebra operations such as join, selection, a
 SQL code for same database
 https://app.popsql.com/queries/-NL71XBUXjJeT0cR8a7f/university
 
-Schema and hastables attached. 
+Schema and hashtables attached. 
 
 Upon running the program, the current data is loaded into the respective hashtable. There are five different hashtables for specific schema. 
 Functions including insert, delete, and lookup will also run automatically, but can be altered in main (part 1) for different types. At the end of each
