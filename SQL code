@@ -1,0 +1,131 @@
+CREATE TABLE snap (
+    student_id INT,
+    name VARCHAR(20),
+    address VARCHAR(30),
+    phone VARCHAR(8),
+    PRIMARY KEY (student_id)
+);
+
+CREATE TABLE csg (
+    course VARCHAR(10),
+    student_id INT,
+    grade VARCHAR(2),
+    PRIMARY KEY (course,student_id),
+    FOREIGN KEY (student_id) REFERENCES snap(student_id) ON DELETE CASCADE,
+    FOREIGN KEY (course) REFERENCES cr(course) ON DELETE CASCADE
+);
+
+CREATE TABLE cp(
+    course VARCHAR(10),
+    prereq VARCHAR(10),
+    PRIMARY KEY(course, prereq),
+    FOREIGN KEY (course) REFERENCES cr(course) ON DELETE CASCADE
+);
+
+CREATE TABLE cdh(
+    course VARCHAR(10),
+    day VARCHAR(1),
+    hour INT,
+    PRIMARY KEY (course, day),
+    FOREIGN KEY (course) REFERENCES cr(course) ON DELETE CASCADE
+);
+
+CREATE TABLE cr(
+        course VARCHAR(10),
+        room VARCHAR(30),
+        PRIMARY KEY (course)
+);
+
+DROP TABLE cdh;
+
+INSERT INTO snap VALUES(11111,'M. Subban','1 Exchange Blvd','555-1212');
+INSERT INTO snap VALUES(12345,'R. Zmolek','2700 B-H Townline Rd','555-1111');
+INSERT INTO snap VALUES(67890,'P. Tischke','1 Exchange Blvd','555-1234');
+INSERT INTO snap VALUES(12321,'F. Cedarqvist','80 Lyndon Rd','555-2222');
+INSERT INTO snap VALUES(98789,'M. Subban','123 Ling Rd','555-3333');
+
+INSERT INTO csg VALUES('CSC171',12345,'A');
+INSERT INTO csg VALUES('CSC171',67890,'B');
+INSERT INTO csg VALUES('MATH150',12345,'A');
+INSERT INTO csg VALUES('DSCC201',12345,'C');
+INSERT INTO csg VALUES('DSCC201',11111,'B+');
+INSERT INTO csg VALUES('CSC172',98789,'A-');
+INSERT INTO csg VALUES('MATH150',67890,'C+');
+INSERT INTO csg VALUES('CSC173',12321,'B+');
+INSERT INTO csg VALUES('CSC173',98789,'A');
+INSERT INTO csg VALUES('CSC171',98789,'C');
+
+INSERT INTO cr VALUES('CSC171','Hutchison Hall 141');
+INSERT INTO cr VALUES('CSC172','Hutchison Hall 141');
+INSERT INTO cr VALUES('CSC173','Wegmans 1400');
+INSERT INTO cr VALUES('CSC252','Wegmans 1400');
+INSERT INTO cr VALUES('CSC254','Wegmans 1400');
+INSERT INTO cr VALUES('DSCC201','Bausch & Lomb 109');
+INSERT INTO cr VALUES('DSCC202','Dewey 2162');
+INSERT INTO cr VALUES('DSCC265','Wegmans 1400');
+INSERT INTO cr VALUES('MATH150','Harkness 115');
+
+INSERT INTO cp VALUES('CSC172','CSC171');
+INSERT INTO cp VALUES('CSC172','MATH150');
+INSERT INTO cp VALUES('CSC173','CSC172');
+INSERT INTO cp VALUES('CSC252','CSC172');
+INSERT INTO cp VALUES('CSC254','CSC252');
+INSERT INTO cp VALUES('DSCC201','CSC171');
+INSERT INTO cp VALUES('DSCC202','DSCC201');
+INSERT INTO cp VALUES('DSCC265','CSC262');
+INSERT INTO cp VALUES('DSCC265','CSC171');
+
+INSERT INTO cdh VALUES('CSC171','T',1400);
+INSERT INTO cdh VALUES('CSC171','R',1400);
+INSERT INTO cdh VALUES('CSC172','T',1525);
+INSERT INTO cdh VALUES('CSC172','R',1640);
+INSERT INTO cdh VALUES('CSC173','T',1400);
+INSERT INTO cdh VALUES('CSC173','R',1400);
+INSERT INTO cdh VALUES('CSC252','T',1230);
+INSERT INTO cdh VALUES('CSC252','R',1230);
+INSERT INTO cdh VALUES('DSCC201','M',900);
+INSERT INTO cdh VALUES('DSCC201','W',900);
+INSERT INTO cdh VALUES('DSCC202','M',1650);
+INSERT INTO cdh VALUES('DSCC202','W',1650);
+INSERT INTO cdh VALUES('DSCC265','W',1400);
+INSERT INTO cdh VALUES('DSCC265','M',1400);
+
+SELECT * FROM snap;
+SELECT * FROM csg;
+SELECT * FROM cp;
+SELECT * FROM cdh;
+SELECT * FROM cr;
+
+SELECT grade 
+FROM csg
+WHERE course = 'CSC171' AND student_id = (
+    SELECT student_id
+    FROM snap 
+    WHERE name = 'R. Zmolek'
+);
+
+--where is name on hour and day
+SELECT room 
+FROM cr 
+WHERE course =(
+    SELECT course
+    FROM cdh
+    WHERE day = 'T' AND hour = 1400 AND course IN(
+        SELECT course
+        FROM csg
+        WHERE student_id = (
+            SELECT student_id
+            FROM snap
+            WHERE name = 'P. Tischke'
+        )
+    )
+);
+
+
+SELECT cdh.course, cdh.day, cdh.hour, cr.room
+FROM cdh
+JOIN cr ON cr.course = cdh.course;
+
+DELETE 
+FROM snap
+WHERE name = 'M. Subban';
